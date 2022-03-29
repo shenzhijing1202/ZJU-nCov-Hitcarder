@@ -1,43 +1,28 @@
-name: zju-ncov-hitcarder-action
-description: ZJU-nCov-HitCarder Action.
-author: Long0x0
+name: 'ZJU-nCov-Hitcarder Action'
 
-branding:
-  icon: mail
-  color: blue
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 22 * * *'
 
-inputs:
-  username:
-    description: zju account username(student id).
-    required: true
-  password:
-    description: zju account password.
-    required: true
-  dingtalk_token:
-    description: dingtalk_token.
-    required: false
-    default: ''
-  serverchan_key:
-    description: serverchan_key.
-    required: false
-    default: ''
-  pushplus_token:
-    description: pushplus_token.
-    required: false
-    default: ''
-
-runs:
-  using: "composite"
-  steps:
-    - name: Working
-      env:
-        USERNAME: ${{ inputs.username }}
-        PASSWORD: ${{ inputs.password }}
-        DINGTALK_TOKEN: ${{ inputs.dingtalk_token }}
-        SERVERCHAN_KEY: ${{ inputs.serverchan_key }}
-        PUSHPLUS_TOKEN: ${{ inputs.pushplus_token }}
-      run: |
-        cd ${{ github.action_path }}
-        pip install -r ./requirements.txt
-        python3 ./hitcarder.py
-      shell: bash
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - username: ZJU_USERNAME
+            password: ZJU_PASSWORD
+            dingtalk_token: DINGTALK_TOKEN
+            pushplus_token: PUSHPLUS_TOKEN
+            serverchan_key: SERVERCHAN_KEY
+    steps:
+      - name: Working
+        uses: Long0x0/zju-ncov-hitcarder@master
+        with:
+          username: ${{ secrets[matrix.username] }}
+          password: ${{ secrets[matrix.password] }}
+          dingtalk_token: ${{ secrets[matrix.dingtalk_token] }}
+          pushplus_token: ${{ secrets[matrix.pushplus_token] }}
+          serverchan_key: ${{ secrets[matrix.serverchan_key] }}
